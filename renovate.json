@@ -1,0 +1,13 @@
+{
+  "extends": ["config:base"],
+  "labels": ["renovate"],
+  "docker": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["dockerfile"],
+      "pinDigests": true
+    }
+  ]
+}

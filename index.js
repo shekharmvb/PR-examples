@@ -1,0 +1,1 @@
+console.log("Auto update demo running...");
