@@ -1,0 +1,33 @@
+name: Docker Digest Update Bot
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # runs every hour
+  workflow_dispatch:
+
+jobs:
+  update-digest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Resolve latest digest
+        id: digest
+        run: |
+          IMAGE="node:18"
+          DIGEST=$(docker pull $IMAGE >/dev/null 2>&1 && docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Update Dockerfile with digest
+        run: |
+          sed -i "s|FROM node:18.*|FROM node:18@${{ steps.digest.outputs.digest }}|g" Dockerfile
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: update node image digest"
+          title: "Update Docker image digest"
+          body: "Automated digest update (Digestabot-like behavior)"
+          branch: digest-update-bot
